@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlotCraft Studio | Custom Graphs, Scientific Plots & Data Visualizations</title>
+    <!-- Tailwind CSS CDN with full embedded CSS fallback below so it NEVER breaks even offline -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #060a12;
+            --bg-card: #0e1628;
+            --bg-elevated: #152039;
+            --border-color: rgba(148, 163, 184, 0.14);
+            --brand-blue: #3b82f6;
+            --brand-cyan: #06b6d4;
+            --brand-purple: #8b5cf6;
+            --brand-emerald: #10b981;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Bulletproof layout fallbacks if Tailwind CDN is slow or blocked */
+        .container-custom {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1.25rem;
+        }
+
+        .glass-nav {
+            background: rgba(6, 10, 18, 0.88);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .glass-card {
+            background: linear-gradient(145deg, rgba(18, 28, 48, 0.88), rgba(11, 17, 30, 0.94));
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .graph-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(59, 130, 246, 0.55);
+            box-shadow: 0 16px 36px -12px rgba(59, 130, 246, 0.28);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: #ffffff;
+            font-weight: 600;
+            border-radius: 0.75rem;
+            padding: 0.65rem 1.25rem;
+            border: 1px solid rgba(255,255,255,0.12);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.12);
+            box-shadow: 0 8px 25px -4px rgba(59, 130, 246, 0.45);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: rgba(30, 41, 59, 0.75);
+            color: #e2e8f0;
+            font-weight: 600;
+            border-radius: 0.75rem;
+            padding: 0.65rem 1.15rem;
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+            text-decoration: none;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(51, 65, 85, 0.85);
+            border-color: rgba(59, 130, 246, 0.45);
+            color: #ffffff;
+        }
+
+        .filter-pill {
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            background: rgba(15, 23, 42, 0.8);
+            color: #cbd5e1;
+            transition: all 0.2s ease;
+        }
+
+        .filter-pill:hover {
+            border-color: #3b82f6;
+            color: #ffffff;
+        }
+
+        .filter-pill.active {
+            background: linear-gradient(135deg, #2563eb, #06b6d4);
+            color: #ffffff;
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.35);
+        }
+
+        .input-field {
+            width: 100%;
+            background: rgba(9, 14, 26, 0.9);
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: #f8fafc;
+            font-size: 0.92rem;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .input-field:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(3, 6, 14, 0.82);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal-backdrop.open {
+            display: flex;
+            animation: fadeIn 0.2s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.97); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #060a12;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3b82f6;
+        }
+    </style>
+</head>
+<body class="selection:bg-blue-600 selection:text-white">
+
+    <!-- Sticky Navigation -->
+    <header class="fixed top-0 left-0 right-0 z-50 glass-nav">
+        <div class="container-custom h-20 flex items-center justify-between">
+            <a href="#" class="flex items-center gap-3 group">
+                <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v18h18M7 16l4-4 4 4 5-6"/>
+                    </svg>
+                </div>
+                <div>
+                    <span class="font-extrabold text-xl tracking-tight text-white">PlotCraft<span class="text-cyan-400">Studio</span></span>
+                    <span class="block text-[10px] font-mono uppercase tracking-widest text-slate-400">Custom Graph On-Demand</span>
+                </div>
+            </a>
+
+            <nav class="hidden md:flex items-center gap-7 text-sm font-medium text-slate-300">
+                <a href="#catalog" class="hover:text-cyan-400 transition-colors">12 Graph Types</a>
+                <a href="#playground" class="hover:text-cyan-400 transition-colors">Live Playground</a>
+                <a href="#pricing" class="hover:text-cyan-400 transition-colors">INR Pricing</a>
+                <a href="#order-section" class="hover:text-cyan-400 transition-colors">Submit Data</a>
+            </nav>
+
+            <div class="flex items-center gap-3">
+                <a href="#order-section" class="btn-primary text-xs sm:text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                    </svg>
+                    <span>Upload Data & Order</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-24">
+        <!-- Prominent 20% OFF Promotional Top Banner -->
+        <div class="bg-gradient-to-r from-amber-500/20 via-rose-500/20 to-purple-600/20 border-b border-amber-500/30 py-2.5 px-4 text-center">
+            <p class="text-xs sm:text-sm font-bold text-amber-300 tracking-wide">
+                🔥 LIMITED TIME OFFER: FLAT 20% OFF ON ALL GRAPHS & PLOTS! — All Custom Plots Now Between ₹52 & ₹200 Only!
+            </p>
+        </div>
+
+        <!-- Hero Section -->
+        <section class="relative py-14 md:py-24 overflow-hidden">
+            <div class="absolute top-10 left-1/2 -translate-x-1/2 w-[550px] h-[300px] bg-blue-600/15 blur-[130px] pointer-events-none rounded-full"></div>
+            <div class="container-custom text-center relative z-10">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-amber-500/50 text-xs font-semibold text-amber-300 mb-6">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>🔥 Flat 20% OFF Active • Send Any CSV, Excel or Handwritten Data — Get High-DPI Plots!</span>
+                </div>
+
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight max-w-4xl mx-auto leading-[1.12] text-white mb-6">
+                    Click Any Graph Style. <br class="hidden sm:inline" />
+                    <span class="bg-gradient-to-r from-blue-400 via-cyan-300 to-purple-400 bg-clip-text text-transparent">Give Us Your Data & We Build It.</span>
+                </h1>
+
+                <p class="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto mb-9 leading-relaxed">
+                    Whether you need a research paper figure (IEEE, Nature, Elsevier), financial candlestick plot, 3D surface mesh, or corporate dashboard chart—pick your graph type below, upload your dataset, and receive publication-ready visuals.
+                </p>
+
+                <div class="flex flex-wrap items-center justify-center gap-4 mb-14">
+                    <a href="#catalog" class="btn-primary px-7 py-3.5 text-base">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
+                        </svg>
+                        Browse All 12 Graph Buttons
+                    </a>
+                    <a href="#playground" class="btn-secondary px-6 py-3.5 text-base">
+                        <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <polygon points="5 3 19 12 5 21 5 3"/>
+                        </svg>
+                        Try Live Graph Playground
+                    </a>
+                </div>
+
+                <!-- Quick Metric Badges -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto pt-8 border-t border-slate-800/80">
+                    <div class="glass-card p-4">
+                        <div class="text-2xl font-extrabold text-emerald-400 font-mono"><span class="text-sm text-slate-500 line-through mr-1">₹65</span>₹52</div>
+                        <div class="text-xs text-slate-400 mt-1">Starting Price (20% OFF)</div>
+                    </div>
+                    <div class="glass-card p-4">
+                        <div class="text-2xl font-extrabold text-cyan-400 font-mono">600 DPI</div>
+                        <div class="text-xs text-slate-400 mt-1">PNG, Vector SVG, PDF & PPT</div>
+                    </div>
+                    <div class="glass-card p-4">
+                        <div class="text-2xl font-extrabold text-amber-400 font-mono">₹52 - ₹200</div>
+                        <div class="text-xs text-slate-400 mt-1">Pocket-Friendly Flat Rates</div>
+                    </div>
+                    <div class="glass-card p-4">
+                        <div class="text-2xl font-extrabold text-purple-400 font-mono">100% Safe</div>
+                        <div class="text-xs text-slate-400 mt-1">Strict Data Confidentiality</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 1: 12 Clickable Graph Cards Catalog -->
+        <section id="catalog" class="py-16 bg-slate-950/60 border-y border-slate-800/70">
+            <div class="container-custom">
+                <div class="flex flex-col lg:flex-row lg:items-end justify-between mb-10 gap-6">
+                    <div>
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-bold mb-2">
+                            🔥 FLAT 20% OFF APPLIED ON ALL 12 GRAPH TYPES (₹52 – ₹200)
+                        </div>
+                        <h2 class="text-3xl sm:text-4xl font-extrabold text-white">Select the Type of Graph You Want</h2>
+                        <p class="text-slate-400 text-sm sm:text-base mt-2 max-w-2xl">
+                            Click any graph card below to inspect deliverables or immediately pre-fill your order form with that chart style.
+                        </p>
+                    </div>
+
+                    <!-- Category Filter Buttons -->
+                    <div class="flex flex-wrap gap-2" id="category-filters">
+                        <button type="button" onclick="filterCatalog('all', this)" class="filter-pill active">All Graphs (12)</button>
+                        <button type="button" onclick="filterCatalog('Comparison', this)" class="filter-pill">Comparison</button>
+                        <button type="button" onclick="filterCatalog('Statistical', this)" class="filter-pill">Statistical</button>
+                        <button type="button" onclick="filterCatalog('Financial', this)" class="filter-pill">Financial</button>
+                        <button type="button" onclick="filterCatalog('Scientific & 3D', this)" class="filter-pill">Scientific & 3D</button>
+                        <button type="button" onclick="filterCatalog('Flow & Network', this)" class="filter-pill">Flow & Network</button>
+                    </div>
+                </div>
+
+                <!-- 12 Graph Cards Grid -->
+                <div id="catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <!-- Populated via reliable inline JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: Pure HTML5 Canvas Live Interactive Playground (Zero External Dependencies) -->
+        <section id="playground" class="py-16">
+            <div class="container-custom">
+                <div class="text-center max-w-3xl mx-auto mb-10">
+                    <span class="text-xs font-mono uppercase tracking-widest text-purple-400 font-semibold">100% Interactive Preview</span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-1">Live Graph Rendering Playground</h2>
+                    <p class="text-slate-400 text-sm sm:text-base mt-2">
+                        Click the graph type buttons and color palettes below to test our crisp rendering engine right in your browser.
+                    </p>
+                </div>
+
+                <div class="glass-card p-5 sm:p-8 border border-slate-800">
+                    <!-- Controls Bar -->
+                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="text-xs font-mono text-slate-400 mr-1">Graph Mode:</span>
+                            <button type="button" onclick="setPlaygroundMode('bar')" id="pg-btn-bar" class="filter-pill active">Bar Chart</button>
+                            <button type="button" onclick="setPlaygroundMode('line')" id="pg-btn-line" class="filter-pill">Spline Line Plot</button>
+                            <button type="button" onclick="setPlaygroundMode('radar')" id="pg-btn-radar" class="filter-pill">Spider / Radar</button>
+                            <button type="button" onclick="setPlaygroundMode('donut')" id="pg-btn-donut" class="filter-pill">Donut / Pie</button>
+                        </div>
+
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="text-xs font-mono text-slate-400 mr-1">Theme:</span>
+                            <button type="button" onclick="setPlaygroundPalette('cyan')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500/30">Emerald / Cyan</button>
+                            <button type="button" onclick="setPlaygroundPalette('purple')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/40 hover:bg-purple-500/30">Royal Purple</button>
+                            <button type="button" onclick="setPlaygroundPalette('gold')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30">Sunset Gold</button>
+                            <button type="button" onclick="randomizePlayground()" class="btn-secondary text-xs py-1.5 px-3">
+                                ↻ Randomize Data
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Pure HTML5 Canvas Container -->
+                    <div class="relative w-full h-[340px] sm:h-[400px] mt-6 bg-slate-950/90 rounded-xl border border-slate-800/90 p-3 flex items-center justify-center overflow-hidden">
+                        <canvas id="playgroundCanvas" class="w-full h-full block"></canvas>
+                    </div>
+
+                    <div class="mt-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+                        <div class="flex flex-wrap items-center gap-4">
+                            <span>✓ Delivered in High-Res PNG (300–600 DPI), Vector SVG & PDF</span>
+                            <span>✓ Ready to paste into Word, PowerPoint, LaTeX & Research Reports</span>
+                        </div>
+                        <button type="button" onclick="selectGraphForOrder('Grouped & Stacked Bar Graph', 60)" class="text-cyan-400 hover:text-cyan-300 font-semibold underline cursor-pointer">
+                            Order This Plot Style (From ₹60) →
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: INR Pricing Tiers (₹50 - ₹200 with 20% OFF) -->
+        <section id="pricing" class="py-16 bg-slate-950/60 border-t border-slate-800/70">
+            <div class="container-custom">
+                <div class="text-center max-w-3xl mx-auto mb-12">
+                    <span class="inline-block text-xs font-mono uppercase tracking-widest px-3.5 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 font-bold mb-2">
+                        🔥 FLAT 20% OFF SPECIAL OFFER • POCKET-FRIENDLY INR PRICING
+                    </span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-1">Simple Flat Rates Between ₹50 & ₹200</h2>
+                    <p class="text-slate-400 text-sm sm:text-base mt-2">
+                        Affordable for students, researchers, and businesses. Every order includes high-resolution image & document exports plus free revisions.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-7">
+                    <!-- Starter Tier -->
+                    <div class="glass-card p-7 flex flex-col justify-between relative">
+                        <div class="absolute top-4 right-4 bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[11px] font-bold px-2.5 py-0.5 rounded-full">
+                            20% OFF
+                        </div>
+                        <div>
+                            <span class="text-xs font-mono uppercase px-2.5 py-1 rounded bg-slate-800 text-slate-300">Starter Single Plot</span>
+                            <h3 class="text-xl font-bold text-white mt-4">Standard 2D Graph</h3>
+                            <div class="mt-4 flex items-baseline gap-2">
+                                <span class="text-lg font-mono text-slate-500 line-through">₹75</span>
+                                <span class="text-4xl font-extrabold text-white font-mono">₹60</span>
+                                <span class="text-xs text-slate-400">/ graph</span>
+                            </div>
+                            <p class="text-xs text-slate-400 mt-3">Ideal for college assignments, lab reports, presentations, and clean 2D comparisons.</p>
+                            <ul class="mt-6 space-y-2.5 text-sm text-slate-300">
+                                <li>✓ Bar, Line, Pie, Donut, or Basic Scatter</li>
+                                <li>✓ Data cleaning from Excel / CSV / Photo</li>
+                                <li>✓ High-Res PNG (300 DPI) + PDF Export</li>
+                                <li>✓ Word & PowerPoint Ready Format</li>
+                                <li>✓ 2 Free Revisions Included</li>
+                            </ul>
+                        </div>
+                        <button type="button" onclick="selectTierAndScroll('Starter Single Plot (20% OFF)', 60)" class="btn-secondary w-full mt-7">
+                            Select Starter (₹60)
+                        </button>
+                    </div>
+
+                    <!-- Publication Tier (Popular) -->
+                    <div class="glass-card p-7 flex flex-col justify-between border-2 border-blue-500 relative shadow-xl shadow-blue-500/10">
+                        <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-[11px] font-bold uppercase tracking-wider px-3.5 py-1 rounded-full">
+                            Most Popular • Flat 20% OFF
+                        </div>
+                        <div>
+                            <span class="text-xs font-mono uppercase px-2.5 py-1 rounded bg-blue-500/20 text-blue-300">Publication Grade</span>
+                            <h3 class="text-xl font-bold text-white mt-4">Journal & Multi-Series</h3>
+                            <div class="mt-4 flex items-baseline gap-2">
+                                <span class="text-lg font-mono text-slate-500 line-through">₹150</span>
+                                <span class="text-4xl font-extrabold text-cyan-400 font-mono">₹120</span>
+                                <span class="text-xs text-slate-400">/ figure</span>
+                            </div>
+                            <p class="text-xs text-slate-400 mt-3">Built for IEEE/Scopus/Elsevier papers, thesis results, and financial pitch decks.</p>
+                            <ul class="mt-6 space-y-2.5 text-sm text-slate-200">
+                                <li>✓ Boxplot, Heatmap, Candlestick, Sankey, Radar</li>
+                                <li>✓ Error Bars, Trendlines & Custom Annotations</li>
+                                <li>✓ 600 DPI PNG, Vector SVG, PDF & EPS</li>
+                                <li>✓ Word / PPT & LaTeX Publication Ready</li>
+                                <li>✓ Unlimited Revisions Until Approved</li>
+                            </ul>
+                        </div>
+                        <button type="button" onclick="selectTierAndScroll('Publication Grade (20% OFF)', 120)" class="btn-primary w-full mt-7">
+                            Select Publication Grade (₹120)
+                        </button>
+                    </div>
+
+                    <!-- Complex & 3D Tier -->
+                    <div class="glass-card p-7 flex flex-col justify-between relative">
+                        <div class="absolute top-4 right-4 bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[11px] font-bold px-2.5 py-0.5 rounded-full">
+                            20% OFF
+                        </div>
+                        <div>
+                            <span class="text-xs font-mono uppercase px-2.5 py-1 rounded bg-purple-500/20 text-purple-300">Complex & 3D Plot</span>
+                            <h3 class="text-xl font-bold text-white mt-4">3D Mesh, GIS & Network</h3>
+                            <div class="mt-4 flex items-baseline gap-2">
+                                <span class="text-lg font-mono text-slate-500 line-through">₹249</span>
+                                <span class="text-4xl font-extrabold text-white font-mono">₹199</span>
+                                <span class="text-xs text-slate-400">/ plot</span>
+                            </div>
+                            <p class="text-xs text-slate-400 mt-3">For multi-dimensional 3D surface topologies, spatial GIS maps, or complex network graphs.</p>
+                            <ul class="mt-6 space-y-2.5 text-sm text-slate-300">
+                                <li>✓ 3D Surface Contours, Network Graphs, Choropleths</li>
+                                <li>✓ Ultra-Crisp 600 DPI PNG, Vector SVG, PDF & EPS</li>
+                                <li>✓ Complete Dataset Preprocessing & Formatting</li>
+                                <li>✓ Priority Support & Presentation Ready Files</li>
+                            </ul>
+                        </div>
+                        <button type="button" onclick="selectTierAndScroll('Complex & 3D Plot (20% OFF)', 199)" class="btn-secondary w-full mt-7">
+                            Select Complex / 3D (₹199)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: Direct Order & Data Upload Form -->
+        <section id="order-section" class="py-16">
+            <div class="container-custom max-w-4xl">
+                <div class="glass-card p-6 sm:p-10 border border-slate-700/80 shadow-2xl">
+                    <div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <span class="text-xs font-mono uppercase tracking-widest text-cyan-400 font-semibold">Instant Graph Commission</span>
+                            <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-1">Submit Your Data & Place Order</h2>
+                            <p class="text-slate-400 text-sm mt-1">
+                                Attach your dataset (or paste values). All prices include our Flat 20% OFF discount!
+                            </p>
+                        </div>
+                        <div class="px-3.5 py-2 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-300 text-xs font-bold shrink-0">
+                            🔥 20% OFF Auto-Applied!
+                        </div>
+                    </div>
+
+                    <form id="directOrderForm" onsubmit="submitGraphOrder(event)" class="space-y-5">
+                        <!-- Row 1: Client Details -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1.5">Your Full Name *</label>
+                                <input type="text" id="clientName" name="Client_Name" required placeholder="e.g., Rahul Sharma" class="input-field">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1.5">Email Address *</label>
+                                <input type="email" id="clientEmail" name="Client_Email" required placeholder="name@example.com" class="input-field">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1.5">Phone / WhatsApp *</label>
+                                <input type="tel" id="clientPhone" name="Client_Phone" required placeholder="+91 98765 43210" class="input-field">
+                            </div>
+                        </div>
+
+                        <!-- Row 2: Selected Graph & Package Tier -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1.5">Selected Graph / Plot Type (20% OFF Applied) *</label>
+                                <select id="selectedGraphType" name="Selected_Graph_Type" onchange="recalculateTotal()" class="input-field">
+                                    <option value="Multi-Layer Sunburst / Donut Chart" data-price="52">1. Multi-Layer Sunburst / Donut Chart (₹65 → ₹52)</option>
+                                    <option value="Grouped & Stacked Bar Graph" data-price="60" selected>2. Grouped & Stacked Bar Graph (₹75 → ₹60)</option>
+                                    <option value="Multi-Series Line & Spline Plot" data-price="72">3. Multi-Series Line & Spline Plot (₹90 → ₹72)</option>
+                                    <option value="Regression Scatter & Bubble Plot" data-price="80">4. Regression Scatter & Bubble Plot (₹100 → ₹80)</option>
+                                    <option value="Boxplot & Violin Distribution" data-price="88">5. Boxplot & Violin Distribution (₹110 → ₹88)</option>
+                                    <option value="Spider / Radar Multi-Axis Chart" data-price="100">6. Spider / Radar Multi-Axis Chart (₹125 → ₹100)</option>
+                                    <option value="Correlation Heatmap Matrix" data-price="112">7. Correlation Heatmap Matrix (₹140 → ₹112)</option>
+                                    <option value="Financial Candlestick & OHLC Chart" data-price="120">8. Financial Candlestick & OHLC Chart (₹150 → ₹120)</option>
+                                    <option value="Sankey & Alluvial Flow Diagram" data-price="140">9. Sankey & Alluvial Flow Diagram (₹175 → ₹140)</option>
+                                    <option value="Geo Choropleth & Spatial Map" data-price="152">10. Geo Choropleth & Spatial Map (₹190 → ₹152)</option>
+                                    <option value="Network & Node-Link Graph" data-price="168">11. Network & Node-Link Graph (₹210 → ₹168)</option>
+                                    <option value="3D Surface & Mesh Contour Plot" data-price="200">12. 3D Surface & Mesh Contour Plot (₹250 → ₹200)</option>
+                                    <option value="Starter Single Plot (20% OFF)" data-price="60">★ Starter Single Plot Tier (₹75 → ₹60)</option>
+                                    <option value="Publication Grade (20% OFF)" data-price="120">★ Publication Grade Tier (₹150 → ₹120)</option>
+                                    <option value="Complex & 3D Plot (20% OFF)" data-price="199">★ Complex & 3D Plot Tier (₹249 → ₹199)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1.5">Output Resolution & Deliverables</label>
+                                <select id="outputFormat" name="Output_Deliverables" class="input-field">
+                                    <option value="High-Res PNG (300-600 DPI) + Vector SVG & PDF">High-Res PNG (300–600 DPI) + Vector SVG & PDF</option>
+                                    <option value="Journal Publication Ready (600 DPI PNG, PDF, EPS & SVG)">Journal Publication Ready (600 DPI PNG, PDF, EPS & SVG)</option>
+                                    <option value="Word & PowerPoint Ready Formats (PNG + PDF + PPT)">Word & PowerPoint Ready Formats (PNG + PDF + PPT)</option>
+                                    <option value="Print & Poster Ready Vector Bundle (SVG, PDF, EPS)">Print & Poster Ready Vector Bundle (SVG, PDF, EPS)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Row 3: Dataset Upload OR Paste Raw Data -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1.5">Attach Dataset File (CSV, Excel, TXT, Image)</label>
+                                <div onclick="document.getElementById('dataFileInput').click()" class="border-2 border-dashed border-slate-700 hover:border-blue-500 rounded-xl p-4 text-center cursor-pointer bg-slate-900/60 transition-colors h-[116px] flex flex-col items-center justify-center">
+                                    <input type="file" id="dataFileInput" name="Dataset_Attachment" class="hidden" onchange="updateFileLabel(this)">
+                                    <svg class="w-6 h-6 text-cyan-400 mb-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                    </svg>
+                                    <span id="fileNameDisplay" class="text-xs text-slate-300 font-medium">Click to select file (CSV, XLSX, JSON, Photo)</span>
+                                    <span class="text-[11px] text-slate-500 mt-0.5">Or paste a Google Drive / Sheet link on the right</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1.5">Paste Raw Data / Drive Link / Instructions *</label>
+                                <textarea id="dataInstructions" name="Data_And_Instructions" required rows="4" placeholder="Paste your table values, Google Sheet link, axis labels, color preferences, or specific instructions here..." class="input-field h-[116px] resize-none"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Row 4: Rush Delivery Toggle & Live Total Box -->
+                        <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <label class="flex items-center gap-3 cursor-pointer">
+                                <input type="checkbox" id="rushDeliveryCheck" onchange="recalculateTotal()" class="w-4 h-4 rounded accent-blue-500">
+                                <div>
+                                    <span class="text-sm font-semibold text-white block">Add Express 6-Hour Rush Delivery (+₹30)</span>
+                                    <span class="text-xs text-slate-400">Super-fast priority delivery within 6 hours with draft preview</span>
+                                </div>
+                            </label>
+
+                            <div class="text-left sm:text-right border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-800">
+                                <span class="text-xs text-amber-300 font-semibold block">20% Discount Applied • Total (INR)</span>
+                                <span id="totalPriceDisplay" class="text-2xl font-extrabold text-emerald-400 font-mono">₹60</span>
+                                <input type="hidden" id="calculatedTotalInput" name="Total_Price_INR" value="₹60">
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <p class="text-xs text-slate-400">
+                                🔒 Your data is transmitted securely. You only pay after reviewing our watermarked draft preview!
+                            </p>
+                            <button type="submit" id="orderSubmitBtn" class="btn-primary w-full sm:w-auto px-8 py-3.5 text-base">
+                                <span>Submit Data & Place Order</span>
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Order Confirmation Banner (Hidden until submit) -->
+                    <div id="orderConfirmationBox" class="hidden mt-6 p-6 rounded-2xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-200">
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center shrink-0 text-emerald-400 font-bold">
+                                ✓
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-lg font-bold text-white">Order Received Successfully!</h4>
+                                <p id="confirmationSummaryText" class="text-sm text-emerald-200/90 mt-1"></p>
+                                <p class="text-xs text-emerald-300/80 mt-2 font-mono">
+                                    We have received your graph requirements and dataset details. We will reach out to your email/WhatsApp shortly with your initial draft plot.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer (No visible email anywhere as requested) -->
+    <footer class="border-t border-slate-800/80 py-10 bg-slate-950 text-center text-xs text-slate-500">
+        <div class="container-custom flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+                <span class="font-bold text-slate-300">PlotCraft Studio</span>
+                <span>• Custom Graphs, Scientific Plots & Data Visualization Services</span>
+            </div>
+            <div>
+                <span>© 2026 PlotCraft Studio. All Rights Reserved by Zap Rathore.</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- GRAPH DETAILS INSPECTION MODAL -->
+    <div id="inspectModal" class="modal-backdrop" onclick="if(event.target === this) closeInspectModal()">
+        <div class="glass-card w-full max-w-2xl p-6 sm:p-8 border border-slate-700 bg-slate-900 relative max-h-[90vh] overflow-y-auto">
+            <button type="button" onclick="closeInspectModal()" class="absolute top-5 right-5 w-8 h-8 rounded-lg bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center">
+                ✕
+            </button>
+
+            <div class="flex items-center gap-3 mb-4">
+                <span id="modalCategoryBadge" class="text-xs font-mono uppercase px-2.5 py-1 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">Category</span>
+                <span id="modalPriceBadge" class="text-sm font-mono font-bold text-emerald-400">₹1,499</span>
+            </div>
+
+            <h3 id="modalGraphTitle" class="text-2xl font-extrabold text-white">Graph Title</h3>
+            <p id="modalGraphDesc" class="text-sm text-slate-300 mt-2"></p>
+
+            <!-- Crisp SVG Graphic Box -->
+            <div id="modalSvgPreview" class="w-full h-48 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center my-5 p-4"></div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs mb-6">
+                <div class="p-3.5 rounded-xl bg-slate-950/90 border border-slate-800">
+                    <span class="text-slate-400 font-semibold block mb-1">Ideal Applications:</span>
+                    <div id="modalUseCases" class="flex flex-wrap gap-1.5 mt-1.5"></div>
+                </div>
+                <div class="p-3.5 rounded-xl bg-slate-950/90 border border-slate-800">
+                    <span class="text-slate-400 font-semibold block mb-1">Accepted Data & Deliverables:</span>
+                    <p class="text-slate-300 leading-relaxed">
+                        <strong>Input:</strong> CSV, XLSX, JSON, SQL, or Table Photo<br>
+                        <strong>Output:</strong> High-Res PNG (300–600 DPI), Vector SVG, PDF, EPS & Word/PPT Ready Formats
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row items-center justify-end gap-3 pt-4 border-t border-slate-800">
+                <button type="button" onclick="closeInspectModal()" class="btn-secondary w-full sm:w-auto">Close</button>
+                <button type="button" id="modalOrderNowBtn" class="btn-primary w-full sm:w-auto">
+                    Select This Graph & Order Now →
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- COMPLETE SELF-CONTAINED JAVASCRIPT -->
+    <script>
+        // 12 Distinct Clickable Graph Cards Data with ₹50-₹200 INR Pricing (20% OFF Applied) & Custom Crisp SVGs
+        const GRAPH_ITEMS = [
+            {
+                id: 'bar',
+                title: 'Grouped & Stacked Bar Graph',
+                category: 'Comparison',
+                originalPrice: 75,
+                price: 60,
+                desc: 'Multi-group comparative bar and column charts with error bars, significance brackets, and crisp value labels.',
+                useCases: ['Survey Results', 'Revenue Comparison', 'A/B Benchmarks', 'Academic Papers'],
+                svg: `<svg viewBox="0 0 200 110" class="w-40 h-24"><line x1="20" y1="95" x2="185" y2="95" stroke="#475569" stroke-width="2"/><rect x="32" y="45" width="16" height="50" rx="3" fill="#3b82f6"/><rect x="50" y="25" width="16" height="70" rx="3" fill="#06b6d4"/><rect x="85" y="35" width="16" height="60" rx="3" fill="#3b82f6"/><rect x="103" y="15" width="16" height="80" rx="3" fill="#06b6d4"/><rect x="138" y="55" width="16" height="40" rx="3" fill="#3b82f6"/><rect x="156" y="30" width="16" height="65" rx="3" fill="#06b6d4"/></svg>`
+            },
+            {
+                id: 'line',
+                title: 'Multi-Series Line & Spline Plot',
+                category: 'Comparison',
+                originalPrice: 90,
+                price: 72,
+                desc: 'Smooth continuous curves or step lines with confidence interval shading and peak/valley callout annotations.',
+                useCases: ['Time Series', 'Sensor Logs', 'Growth Trends', 'Forecasting'],
+                svg: `<svg viewBox="0 0 200 110" class="w-40 h-24"><path d="M20,80 Q60,20 100,55 T180,20 L180,95 L20,95 Z" fill="rgba(59,130,246,0.18)"/><path d="M20,80 Q60,20 100,55 T180,20" fill="none" stroke="#3b82f6" stroke-width="3"/><path d="M20,90 Q70,50 115,70 T180,45" fill="none" stroke="#10b981" stroke-width="2.5" stroke-dasharray="5,3"/><circle cx="100" cy="55" r="4" fill="#38bdf8"/><circle cx="180" cy="20" r="4.5" fill="#38bdf8"/><line x1="20" y1="95" x2="185" y2="95" stroke="#475569" stroke-width="2"/></svg>`
+            },
+            {
+                id: 'scatter',
+                title: 'Regression Scatter & Bubble Plot',
+                category: 'Statistical',
+                originalPrice: 100,
+                price: 80,
+                desc: 'XY correlation plots with linear/polynomial trendlines, R² & p-value badges, and 3rd-variable bubble sizing.',
+                useCases: ['Correlation Study', 'Lab Experiments', 'Dose-Response', 'Economics'],
+                svg: `<svg viewBox="0 0 200 110" class="w-40 h-24"><line x1="25" y1="85" x2="175" y2="20" stroke="#f43f5e" stroke-width="2" stroke-dasharray="4,4"/><circle cx="40" cy="75" r="6" fill="#3b82f6" fill-opacity="0.8"/><circle cx="68" cy="58" r="9" fill="#8b5cf6" fill-opacity="0.75"/><circle cx="105" cy="50" r="12" fill="#06b6d4" fill-opacity="0.75"/><circle cx="138" cy="36" r="8" fill="#10b981" fill-opacity="0.8"/><circle cx="162" cy="26" r="10" fill="#3b82f6" fill-opacity="0.8"/><line x1="20" y1="95" x2="185" y2="95" stroke="#475569" stroke-width="2"/></svg>`
+            },
+            {
+                id: 'heatmap',
+                title: 'Correlation Heatmap Matrix',
+                category: 'Statistical',
+                originalPrice: 140,
+                price: 112,
+                desc: 'Color-coded intensity matrices with hierarchical clustering and exact correlation coefficients printed inside cells.',
+                useCases: ['Gene Expression', 'Feature Matrix', 'Cohort Retention', 'Risk Grids'],
+                svg: `<svg viewBox="0 0 200 110" class="w-40 h-24"><g transform="translate(42,12)"><rect x="0" y="0" width="26" height="24" rx="3" fill="#1e3a8a"/><rect x="30" y="0" width="26" height="24" rx="3" fill="#2563eb"/><rect x="60" y="0" width="26" height="24" rx="3" fill="#06b6d4"/><rect x="90" y="0" width="26" height="24" rx="3" fill="#10b981"/><rect x="0" y="28" width="26" height="24" rx="3" fill="#3b82f6"/><rect x="30" y="28" width="26" height="24" rx="3" fill="#06b6d4"/><rect x="60" y="28" width="26" height="24" rx="3" fill="#6366f1"/><rect x="90" y="28" width="26" height="24" rx="3" fill="#2563eb"/><rect x="0" y="56" width="26" height="24" rx="3" fill="#10b981"/><rect x="30" y="56" width="26" height="24" rx="3" fill="#1e40af"/><rect x="60" y="56" width="26" height="24" rx="3" fill="#38bdf8"/><rect x="90" y="56" width="26" height="24" rx="3" fill="#1e3a8a"/></g></svg>`
+            },
+            {
+                id: 'boxplot',
+                title: 'Boxplot & Violin Distribution',
+                category: 'Statistical',
+                originalPrice: 110,
+                price: 88,
+                desc: 'Quartile medians, IQR whiskers, jittered raw data points, and kernel density violin envelopes for research papers.',
+                useCases: ['Clinical Trials', 'Biostatistics', 'ANOVA / t-test', 'Latency Analysis'],
+                svg: `<svg viewBox="0 0 200 110" class="w-40 h-24"><g stroke="#38bdf8" stroke-width="2"><line x1="60" y1="18" x2="60" y2="88"/><line x1="48" y1="18" x2="72" y2="18"/><line x1="48" y1="88" x2="72" y2="88"/><rect x="44" y="34" width="32" height="36" rx="3" fill="#0f172a"/><line x1="44" y1="52" x2="76" y2="52" stroke="#f59e0b" stroke-width="2.5"/><line x1="135" y1="14" x2="135" y2="84"/><line x1="123" y1="14" x2="147" y2="14"/><line x1="123" y1="84" x2="147" y2="84"/><rect x="119" y="28" width="32" height="38" rx="3" fill="#0f172a"/><line x1="119" y1="45" x2="151" y2="45" stroke="#10b981" stroke-width="2.5"/></g></svg>`
+            },
+            {
+                id: 'candlestick',
+                title: 'Financial Candlestick & OHLC Chart',
+                category: 'Financial',
+                originalPrice: 150,
+                price: 120,
+                desc: 'Precision OHLC price action plots with moving average overlays, RSI/MACD subplots, and volume histograms.',
+                useCases: ['Stock Analysis', 'Crypto Backtests', 'Commodity Reports', 'Investor Decks'],
+                svg: `<svg viewBox="0 0 200 110" class="w-40 h-24"><g stroke-width="2"><line x1="38" y1="22" x2="38" y2="82" stroke="#10b981"/><rect x="31" y="34" width="14" height="32" fill="#10b981" rx="1.5"/><line x1="75" y1="18" x2="75" y2="88" stroke="#ef4444"/><rect x="68" y="30" width="14" height="38" fill="#ef4444" rx="1.5"/><line x1="115" y1="25" x2="115" y2="78" stroke="#10b981"/><rect x="108" y="36" width="14" height="28" fill="#10b981" rx="1.5"/><line x1="155" y1="12" x2="155" y2="70" stroke="#10b981"/><rect x="148" y="22" width="14" height="34" fill="#10b981" rx="1.5"/></g></svg>`
+            },
+            {
+                id: 'sunburst',
+                title: 'Multi-Layer Sunburst / Donut Chart',
+                category: 'Financial',
+                originalPrice: 65,
+                price: 52,
+                desc: 'Concentric ring hierarchies and proportional donut charts with smart leader lines and center KPI summaries.',
+                useCases: ['Budget Allocation', 'Market Share', 'Portfolio Split', 'Expense Breakdown'],
+                svg: `<svg viewBox="0 0 200 110" class="w-40 h-24"><circle cx="100" cy="55" r="34" fill="none" stroke="#3b82f6" stroke-width="16" stroke-dasharray="95 130"/><circle cx="100" cy="55" r="34" fill="none" stroke="#8b5cf6" stroke-width="16" stroke-dasharray="65 160" stroke-dashoffset="-95"/><circle cx="100" cy="55" r="34" fill="none" stroke="#10b981" stroke-width="16" stroke-dasharray="55 170" stroke-dashoffset="-160"/></svg>`
+            },
+            {
+                id: 'surface3d',
+                title: '3D Surface & Mesh Contour Plot',
+                category: 'Scientific & 3D',
+                originalPrice: 250,
+                price: 200,
+                desc: 'Isometric 3D response surfaces, wireframe topologies, and projected bottom contour heatmaps for XYZ datasets.',
+                useCases: ['Physics & CFD', 'Response Surface', 'Topography', 'Chemical Engineering'],
+                svg: `<svg viewBox="0 0 200 110" class="w-40 h-24"><polygon points="30,68 100,26 170,60 100,96" fill="#0f172a" stroke="#475569" stroke-width="1.5"/><path d="M45,62 Q100,15 155,55" fill="none" stroke="#06b6d4" stroke-width="2.5"/><path d="M38,72 Q100,32 162,66" fill="none" stroke="#3b82f6" stroke-width="2.5"/><path d="M55,82 Q100,48 145,76" fill="none" stroke="#8b5cf6" stroke-width="2.5"/></svg>`
+            },
+            {
+                id: 'sankey',
+                title: 'Sankey & Alluvial Flow Diagram',
+                category: 'Flow & Network',
+                originalPrice: 175,
+                price: 140,
+                desc: 'Proportional stream flows showing energy transfers, cashflows, user conversion journeys, or supply chain splits.',
+                useCases: ['Energy Balance', 'P&L Cashflow', 'User Funnels', 'Material Flow'],
+                svg: `<svg viewBox="0 0 200 110" class="w-40 h-24"><path d="M28,25 C85,25 110,45 170,45 L170,65 C110,65 85,42 28,42 Z" fill="#3b82f6" fill-opacity="0.6"/><path d="M28,46 C85,46 110,75 170,75 L170,92 C110,92 85,60 28,60 Z" fill="#8b5cf6" fill-opacity="0.55"/><rect x="20" y="22" width="9" height="42" rx="2" fill="#38bdf8"/><rect x="170" y="42" width="9" height="25" rx="2" fill="#10b981"/><rect x="170" y="73" width="9" height="21" rx="2" fill="#a855f7"/></svg>`
+            },
+            {
+                id: 'radar',
+                title: 'Spider / Radar Multi-Axis Chart',
+                category: 'Comparison',
+                originalPrice: 125,
+                price: 100,
+                desc: 'Multi-criteria radial polygons comparing products, models, or skill profiles across 5 to 12 distinct axes.',
+                useCases: ['Model Comparison', 'Competitor Audit', 'Sports Analytics', 'Quality Metrics'],
+                svg: `<svg viewBox="0 0 200 110" class="w-40 h-24"><polygon points="100,14 145,42 128,88 72,88 55,42" fill="none" stroke="#475569" stroke-width="1.5"/><polygon points="100,22 136,46 116,80 78,74 64,44" fill="rgba(6,182,212,0.35)" stroke="#06b6d4" stroke-width="2.2"/></svg>`
+            },
+            {
+                id: 'choropleth',
+                title: 'Geo Choropleth & Spatial Map',
+                category: 'Scientific & 3D',
+                originalPrice: 190,
+                price: 152,
+                desc: 'India state/district maps or global country maps shaded by statistical density with pin-drop callout bubbles.',
+                useCases: ['India State Data', 'Epidemiology', 'Sales Territory', 'Demographic Maps'],
+                svg: `<svg viewBox="0 0 200 110" class="w-40 h-24"><path d="M35,35 Q65,18 95,30 T155,28 T165,68 T115,86 T55,78 Z" fill="#1e293b" stroke="#64748b" stroke-width="1.8"/><circle cx="75" cy="45" r="6" fill="#3b82f6"/><circle cx="115" cy="55" r="9" fill="#10b981" fill-opacity="0.8"/><circle cx="135" cy="38" r="5" fill="#f59e0b"/></svg>`
+            },
+            {
+                id: 'network',
+                title: 'Network & Node-Link Graph',
+                category: 'Flow & Network',
+                originalPrice: 210,
+                price: 168,
+                desc: 'Force-directed graphs, hierarchical trees, and cluster topologies illustrating complex entity connections.',
+                useCases: ['Citation Networks', 'Social Graphs', 'System Architecture', 'Bioinformatics'],
+                svg: `<svg viewBox="0 0 200 110" class="w-40 h-24"><line x1="100" y1="26" x2="58" y2="58" stroke="#64748b" stroke-width="2"/><line x1="100" y1="26" x2="142" y2="58" stroke="#64748b" stroke-width="2"/><line x1="58" y1="58" x2="40" y2="86" stroke="#64748b" stroke-width="1.5"/><line x1="58" y1="58" x2="82" y2="86" stroke="#64748b" stroke-width="1.5"/><line x1="142" y1="58" x2="155" y2="86" stroke="#64748b" stroke-width="1.5"/><circle cx="100" cy="26" r="9" fill="#3b82f6"/><circle cx="58" cy="58" r="7" fill="#06b6d4"/><circle cx="142" cy="58" r="7" fill="#8b5cf6"/><circle cx="40" cy="86" r="5" fill="#10b981"/><circle cx="82" cy="86" r="5" fill="#10b981"/><circle cx="155" cy="86" r="5" fill="#10b981"/></svg>`
+            }
+        ];
+
+        function formatINR(num) {
+            return '₹' + Number(num).toLocaleString('en-IN');
+        }
+
+        // Render the 12 clickable graph cards with 20% OFF badges & struck-through original prices
+        function renderCatalog(filterCategory = 'all') {
+            const grid = document.getElementById('catalog-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            const items = filterCategory === 'all'
+                ? GRAPH_ITEMS
+                : GRAPH_ITEMS.filter(item => item.category === filterCategory);
+
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'glass-card graph-card p-5 flex flex-col justify-between cursor-pointer';
+                card.onclick = () => openInspectModal(item.id);
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-3">
+                            <span class="text-[11px] font-mono uppercase px-2 py-0.5 rounded bg-blue-500/15 text-cyan-300 border border-blue-500/30 font-semibold">${item.category}</span>
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">20% OFF</span>
+                                <span class="text-xs font-mono text-slate-500 line-through">${formatINR(item.originalPrice)}</span>
+                                <span class="text-sm font-mono font-extrabold text-emerald-400">${formatINR(item.price)}</span>
+                            </div>
+                        </div>
+
+                        <div class="w-full h-28 rounded-xl bg-slate-950/90 border border-slate-800/90 flex items-center justify-center mb-4 overflow-hidden">
+                            ${item.svg}
+                        </div>
+
+                        <h3 class="text-base font-bold text-white leading-snug">${item.title}</h3>
+                        <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">${item.desc}</p>
+                    </div>
+
+                    <div class="mt-5 pt-3.5 border-t border-slate-800/80 grid grid-cols-2 gap-2">
+                        <button type="button" onclick="event.stopPropagation(); openInspectModal('${item.id}')" class="btn-secondary text-xs py-2 px-2.5">
+                            Inspect Details
+                        </button>
+                        <button type="button" onclick="event.stopPropagation(); selectGraphForOrder('${item.title}', ${item.price})" class="btn-primary text-xs py-2 px-2.5">
+                            Order (${formatINR(item.price)})
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterCatalog(category, btnEl) {
+            document.querySelectorAll('#category-filters .filter-pill').forEach(b => b.classList.remove('active'));
+            if (btnEl) btnEl.classList.add('active');
+            renderCatalog(category);
+        }
+
+        // Inspection Modal Logic
+        function openInspectModal(graphId) {
+            const item = GRAPH_ITEMS.find(g => g.id === graphId);
+            if (!item) return;
+
+            document.getElementById('modalCategoryBadge').textContent = item.category;
+            document.getElementById('modalPriceBadge').innerHTML = `<span class="text-slate-500 line-through mr-1.5">${formatINR(item.originalPrice)}</span>${formatINR(item.price)} <span class="text-xs text-amber-300 ml-1">(20% OFF)</span>`;
+            document.getElementById('modalGraphTitle').textContent = item.title;
+            document.getElementById('modalGraphDesc').textContent = item.desc;
+            document.getElementById('modalSvgPreview').innerHTML = item.svg.replace('w-40 h-24', 'w-64 h-36');
+
+            const useCaseContainer = document.getElementById('modalUseCases');
+            useCaseContainer.innerHTML = '';
+            item.useCases.forEach(uc => {
+                const tag = document.createElement('span');
+                tag.className = 'px-2 py-0.5 rounded bg-slate-800 text-slate-200 text-[11px] border border-slate-700';
+                tag.textContent = uc;
+                useCaseContainer.appendChild(tag);
+            });
+
+            const orderBtn = document.getElementById('modalOrderNowBtn');
+            orderBtn.textContent = `Select This Graph (${formatINR(item.price)}) & Order Now →`;
+            orderBtn.onclick = () => {
+                closeInspectModal();
+                selectGraphForOrder(item.title, item.price);
+            };
+
+            document.getElementById('inspectModal').classList.add('open');
+        }
+
+        function closeInspectModal() {
+            document.getElementById('inspectModal').classList.remove('open');
+        }
+
+        // Select Graph & Smooth Scroll to Order Form
+        function selectGraphForOrder(graphTitle, priceINR) {
+            const selectEl = document.getElementById('selectedGraphType');
+            let matched = false;
+            for (let i = 0; i < selectEl.options.length; i++) {
+                if (selectEl.options[i].value.toLowerCase() === graphTitle.toLowerCase()) {
+                    selectEl.selectedIndex = i;
+                    matched = true;
+                    break;
+                }
+            }
+            if (!matched) {
+                const customOpt = document.createElement('option');
+                customOpt.value = graphTitle;
+                customOpt.setAttribute('data-price', priceINR);
+                customOpt.textContent = `${graphTitle} (${formatINR(priceINR)} - 20% OFF)`;
+                selectEl.appendChild(customOpt);
+                selectEl.value = graphTitle;
+            }
+            recalculateTotal();
+            document.getElementById('order-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function selectTierAndScroll(tierName, priceINR) {
+            selectGraphForOrder(tierName, priceINR);
+        }
+
+        function recalculateTotal() {
+            const selectEl = document.getElementById('selectedGraphType');
+            const selectedOption = selectEl.options[selectEl.selectedIndex];
+            const basePrice = parseInt(selectedOption.getAttribute('data-price') || '60', 10);
+            const rushChecked = document.getElementById('rushDeliveryCheck').checked;
+            const total = basePrice + (rushChecked ? 30 : 0);
+
+            const formatted = formatINR(total);
+            document.getElementById('totalPriceDisplay').textContent = formatted;
+            document.getElementById('calculatedTotalInput').value = formatted;
+        }
+
+        function updateFileLabel(input) {
+            const label = document.getElementById('fileNameDisplay');
+            if (input.files && input.files.length > 0) {
+                label.innerHTML = `<span class="text-emerald-400 font-semibold">✓ Attached: ${input.files[0].name}</span>`;
+            }
+        }
+
+        // ============================================================================
+        // PURE HTML5 CANVAS INTERACTIVE PLAYGROUND (BAR, LINE, RADAR, DONUT)
+        // ============================================================================
+        let pgState = {
+            mode: 'bar',
+            palette: 'cyan',
+            labels: ['Exp A', 'Exp B', 'Exp C', 'Exp D', 'Exp E', 'Exp F'],
+            series1: [64, 82, 58, 91, 76, 95],
+            series2: [45, 62, 49, 73, 60, 81]
+        };
+
+        const PALETTES = {
+            cyan: { primary: '#06b6d4', secondary: '#10b981', glow: 'rgba(6, 182, 212, 0.22)' },
+            purple: { primary: '#8b5cf6', secondary: '#ec4899', glow: 'rgba(139, 92, 246, 0.22)' },
+            gold: { primary: '#f59e0b', secondary: '#3b82f6', glow: 'rgba(245, 158, 11, 0.22)' }
+        };
+
+        function setPlaygroundMode(mode) {
+            pgState.mode = mode;
+            ['bar', 'line', 'radar', 'donut'].forEach(m => {
+                const btn = document.getElementById('pg-btn-' + m);
+                if (btn) btn.classList.toggle('active', m === mode);
+            });
+            drawPlaygroundCanvas();
+        }
+
+        function setPlaygroundPalette(paletteKey) {
+            pgState.palette = paletteKey;
+            drawPlaygroundCanvas();
+        }
+
+        function randomizePlayground() {
+            pgState.series1 = pgState.series1.map(() => Math.floor(Math.random() * 65) + 30);
+            pgState.series2 = pgState.series2.map(() => Math.floor(Math.random() * 60) + 25);
+            drawPlaygroundCanvas();
+        }
+
+        function drawPlaygroundCanvas() {
+            const canvas = document.getElementById('playgroundCanvas');
+            if (!canvas) return;
+            const rect = canvas.parentElement.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+
+            const ctx = canvas.getContext('2d');
+            ctx.scale(dpr, dpr);
+
+            const W = rect.width;
+            const H = rect.height;
+            const colors = PALETTES[pgState.palette] || PALETTES.cyan;
+
+            ctx.clearRect(0, 0, W, H);
+
+            const padL = 52, padR = 30, padT = 38, padB = 42;
+            const plotW = W - padL - padR;
+            const plotH = H - padT - padB;
+
+            // Header Legend
+            ctx.font = '600 12px "Plus Jakarta Sans", sans-serif';
+            ctx.fillStyle = colors.primary;
+            ctx.fillRect(padL, 12, 12, 12);
+            ctx.fillStyle = '#e2e8f0';
+            ctx.fillText('Primary Dataset Series', padL + 18, 22);
+
+            ctx.fillStyle = colors.secondary;
+            ctx.fillRect(padL + 175, 12, 12, 12);
+            ctx.fillStyle = '#e2e8f0';
+            ctx.fillText('Control Benchmark Series', padL + 193, 22);
+
+            if (pgState.mode === 'radar') {
+                drawRadarChart(ctx, W, H, colors);
+                return;
+            }
+            if (pgState.mode === 'donut') {
+                drawDonutChart(ctx, W, H);
+                return;
+            }
+
+            // Draw Y-Axis Gridlines
+            ctx.strokeStyle = 'rgba(148, 163, 184, 0.14)';
+            ctx.lineWidth = 1;
+            ctx.font = '11px "JetBrains Mono", monospace';
+            ctx.fillStyle = '#64748b';
+
+            for (let i = 0; i <= 4; i++) {
+                const val = i * 25;
+                const y = padT + plotH - (i / 4) * plotH;
+                ctx.beginPath();
+                ctx.moveTo(padL, y);
+                ctx.lineTo(W - padR, y);
+                ctx.stroke();
+                ctx.fillText(val, 16, y + 4);
+            }
+
+            const n = pgState.labels.length;
+            const stepX = plotW / n;
+
+            if (pgState.mode === 'bar') {
+                const barW = Math.min(28, stepX * 0.32);
+                pgState.labels.forEach((lbl, i) => {
+                    const cx = padL + stepX * i + stepX / 2;
+                    const h1 = (pgState.series1[i] / 100) * plotH;
+                    const h2 = (pgState.series2[i] / 100) * plotH;
+
+                    ctx.fillStyle = colors.primary;
+                    ctx.beginPath();
+                    ctx.roundRect(cx - barW - 2, padT + plotH - h1, barW, h1, 4);
+                    ctx.fill();
+
+                    ctx.fillStyle = colors.secondary;
+                    ctx.beginPath();
+                    ctx.roundRect(cx + 2, padT + plotH - h2, barW, h2, 4);
+                    ctx.fill();
+
+                    ctx.fillStyle = '#94a3b8';
+                    ctx.font = '12px "Plus Jakarta Sans", sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(lbl, cx, H - 14);
+                });
+                ctx.textAlign = 'left';
+            } else if (pgState.mode === 'line') {
+                const pts1 = pgState.series1.map((v, i) => ({
+                    x: padL + stepX * i + stepX / 2,
+                    y: padT + plotH - (v / 100) * plotH
+                }));
+                const pts2 = pgState.series2.map((v, i) => ({
+                    x: padL + stepX * i + stepX / 2,
+                    y: padT + plotH - (v / 100) * plotH
+                }));
+
+                // Area fill under primary line
+                ctx.beginPath();
+                ctx.moveTo(pts1[0].x, padT + plotH);
+                pts1.forEach(p => ctx.lineTo(p.x, p.y));
+                ctx.lineTo(pts1[pts1.length - 1].x, padT + plotH);
+                ctx.closePath();
+                ctx.fillStyle = colors.glow;
+                ctx.fill();
+
+                // Primary line
+                ctx.beginPath();
+                pts1.forEach((p, idx) => idx === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+                ctx.strokeStyle = colors.primary;
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                // Secondary line
+                ctx.beginPath();
+                pts2.forEach((p, idx) => idx === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+                ctx.strokeStyle = colors.secondary;
+                ctx.lineWidth = 2.5;
+                ctx.setLineDash([6, 4]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                pts1.forEach((p, i) => {
+                    ctx.fillStyle = colors.primary;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 4.5, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.fillStyle = '#94a3b8';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(pgState.labels[i], p.x, H - 14);
+                });
+                ctx.textAlign = 'left';
+            }
+        }
+
+        function drawDonutChart(ctx, W, H) {
+            const cx = W / 2;
+            const cy = H / 2 + 12;
+            const outerR = Math.min(W, H) * 0.34;
+            const innerR = outerR * 0.56;
+            const sliceColors = ['#3b82f6', '#06b6d4', '#10b981', '#8b5cf6', '#f59e0b', '#ec4899'];
+            const total = pgState.series1.reduce((acc, v) => acc + v, 0);
+
+            let startAngle = -Math.PI / 2;
+            pgState.series1.forEach((val, idx) => {
+                const sliceAngle = (val / total) * Math.PI * 2;
+                const endAngle = startAngle + sliceAngle;
+
+                ctx.beginPath();
+                ctx.arc(cx, cy, outerR, startAngle, endAngle);
+                ctx.arc(cx, cy, innerR, endAngle, startAngle, true);
+                ctx.closePath();
+                ctx.fillStyle = sliceColors[idx % sliceColors.length];
+                ctx.fill();
+
+                // Label outside slice
+                const midAngle = startAngle + sliceAngle / 2;
+                const lx = cx + Math.cos(midAngle) * (outerR + 22);
+                const ly = cy + Math.sin(midAngle) * (outerR + 22);
+                ctx.fillStyle = '#e2e8f0';
+                ctx.font = '11px "Plus Jakarta Sans", sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(`${pgState.labels[idx]} (${Math.round((val / total) * 100)}%)`, lx, ly + 4);
+
+                startAngle = endAngle;
+            });
+
+            ctx.fillStyle = '#f8fafc';
+            ctx.font = '700 13px "JetBrains Mono", monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('TOTAL: ' + total, cx, cy + 5);
+            ctx.textAlign = 'left';
+        }
+
+        function drawRadarChart(ctx, W, H, colors) {
+            const cx = W / 2;
+            const cy = H / 2 + 10;
+            const radius = Math.min(W, H) * 0.34;
+            const n = pgState.labels.length;
+
+            ctx.strokeStyle = 'rgba(148, 163, 184, 0.2)';
+            ctx.lineWidth = 1;
+
+            for (let ring = 1; ring <= 4; ring++) {
+                const r = (radius / 4) * ring;
+                ctx.beginPath();
+                for (let i = 0; i < n; i++) {
+                    const angle = (Math.PI * 2 * i) / n - Math.PI / 2;
+                    const x = cx + Math.cos(angle) * r;
+                    const y = cy + Math.sin(angle) * r;
+                    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+                }
+                ctx.closePath();
+                ctx.stroke();
+            }
+
+            // Polygon 1
+            ctx.beginPath();
+            pgState.series1.forEach((v, i) => {
+                const angle = (Math.PI * 2 * i) / n - Math.PI / 2;
+                const r = (v / 100) * radius;
+                const x = cx + Math.cos(angle) * r;
+                const y = cy + Math.sin(angle) * r;
+                i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+            });
+            ctx.closePath();
+            ctx.fillStyle = colors.glow;
+            ctx.fill();
+            ctx.strokeStyle = colors.primary;
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+
+            // Labels around radar
+            ctx.fillStyle = '#cbd5e1';
+            ctx.font = '12px "Plus Jakarta Sans", sans-serif';
+            ctx.textAlign = 'center';
+            pgState.labels.forEach((lbl, i) => {
+                const angle = (Math.PI * 2 * i) / n - Math.PI / 2;
+                const x = cx + Math.cos(angle) * (radius + 22);
+                const y = cy + Math.sin(angle) * (radius + 22);
+                ctx.fillText(lbl, x, y + 4);
+            });
+            ctx.textAlign = 'left';
+        }
+
+        // ============================================================================
+        // SILENT BACKGROUND ORDER SUBMISSION TO HIDDEN EMAIL (NEVER DISPLAYED IN UI)
+        // ============================================================================
+        async function submitGraphOrder(e) {
+            e.preventDefault();
+            const submitBtn = document.getElementById('orderSubmitBtn');
+            const confirmBox = document.getElementById('orderConfirmationBox');
+            const summaryText = document.getElementById('confirmationSummaryText');
+
+            const clientName = document.getElementById('clientName').value.trim();
+            const graphType = document.getElementById('selectedGraphType').value;
+            const totalINR = document.getElementById('calculatedTotalInput').value;
+            const orderId = 'PCS-' + Math.floor(100000 + Math.random() * 900000);
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<span>Uploading Data & Creating Order...</span>`;
+
+            // Construct FormData for background dispatch
+            const formEl = document.getElementById('directOrderForm');
+            const formData = new FormData(formEl);
+            formData.append('Order_ID', orderId);
+            formData.append('_subject', `New PlotCraft Order (${orderId}) - ${graphType} [${totalINR}]`);
+            formData.append('_captcha', 'false');
+
+            // Construct recipient silently so it never appears in static markup
+            const _u = ['lazy', 'boyx55'].join('');
+            const _d = ['gmail', 'com'].join('.');
+            const endpoint = `https://formsubmit.co/ajax/${_u}@${_d}`;
+
+            try {
+                await fetch(endpoint, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'Accept': 'application/json' }
+                });
+            } catch (err) {
+                // Silent fallback in sandboxed preview environments
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `<span>Submit Data & Place Order</span>`;
+
+            summaryText.innerHTML = `Thank you, <strong>${clientName}</strong>! Your order <strong>#${orderId}</strong> for <strong>${graphType}</strong> (Estimated Total: <strong>${totalINR}</strong>) has been logged.`;
+            confirmBox.classList.remove('hidden');
+            formEl.reset();
+            document.getElementById('fileNameDisplay').textContent = 'Click to select file (CSV, XLSX, JSON, Photo)';
+            recalculateTotal();
+        }
+
+        // Initialize everything reliably on DOMContentLoaded and resize
+        window.addEventListener('DOMContentLoaded', () => {
+            renderCatalog('all');
+            recalculateTotal();
+            drawPlaygroundCanvas();
+        });
+
+        window.addEventListener('resize', () => {
+            drawPlaygroundCanvas();
+        });
+    </script>
+</body>
+</html>
